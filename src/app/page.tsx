@@ -1,10 +1,28 @@
-export default function Home() {
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { Hero } from "@/components/landing/hero";
+import { FeaturesSection } from "@/components/landing/features-section";
+import { DemoPreview } from "@/components/landing/demo-preview";
+import { CtaSection } from "@/components/landing/cta-section";
+import { Footer } from "@/components/layout/footer";
+
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/dashboard");
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <h1 className="text-4xl font-bold tracking-tight">ProCaddie</h1>
-      <p className="mt-4 text-lg text-muted-foreground">
-        Your AI caddie preps the course so you can play with a plan.
-      </p>
+    <main className="flex flex-col">
+      <Hero />
+      <FeaturesSection />
+      <DemoPreview />
+      <CtaSection />
+      <Footer />
     </main>
   );
 }
