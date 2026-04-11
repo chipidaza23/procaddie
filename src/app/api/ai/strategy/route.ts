@@ -14,6 +14,40 @@ import type {
   FeatureSegment,
 } from "@/lib/types";
 
+export async function GET(req: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const holeId = req.nextUrl.searchParams.get("hole_id");
+  const profileId = req.nextUrl.searchParams.get("profile_id");
+  if (!holeId || !profileId) {
+    return NextResponse.json(
+      { error: "hole_id and profile_id are required" },
+      { status: 400 }
+    );
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("hole_strategies")
+    .select("*")
+    .eq("hole_id", holeId)
+    .eq("profile_id", profileId)
+    .single();
+
+  if (error || !data) {
+    return NextResponse.json({ strategy: null }, { status: 404 });
+  }
+
+  return NextResponse.json({ strategy: data });
+}
+
 export async function POST(req: NextRequest) {
   // Authenticate
   const supabase = await createClient();
