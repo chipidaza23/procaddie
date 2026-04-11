@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { fetchCourseById, extractHoles } from "@/lib/services/course-api";
+import { fetchCourseById, extractHoles, buildCourseName } from "@/lib/services/course-api";
 
 export async function GET(
   _request: NextRequest,
@@ -43,9 +43,7 @@ export async function GET(
 
     const courseRow = {
       external_id: String(apiCourse.id),
-      name: apiCourse.course_name && apiCourse.course_name !== apiCourse.club_name
-        ? `${apiCourse.club_name} — ${apiCourse.course_name}`
-        : apiCourse.club_name,
+      name: buildCourseName(apiCourse.club_name, apiCourse.course_name),
       city: apiCourse.location.city ?? null,
       state: apiCourse.location.state ?? null,
       country: apiCourse.location.country ?? null,
@@ -77,10 +75,10 @@ export async function GET(
       par: h.par,
       distance_yards: h.distance_yards,
       handicap_index: h.handicap_index,
-      tee_latitude: apiCourse.location.latitude,
-      tee_longitude: apiCourse.location.longitude,
-      green_latitude: apiCourse.location.latitude,
-      green_longitude: apiCourse.location.longitude,
+      tee_latitude: null,
+      tee_longitude: null,
+      green_latitude: null,
+      green_longitude: null,
     }));
 
     let savedHoles: typeof holeRows = [];
