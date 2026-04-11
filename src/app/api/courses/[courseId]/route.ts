@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { fetchCourseById } from "@/lib/services/course-api";
+import { fetchCourseById, extractHoles } from "@/lib/services/course-api";
 
 export async function GET(
   _request: NextRequest,
@@ -43,16 +43,18 @@ export async function GET(
 
     const courseRow = {
       external_id: String(apiCourse.id),
-      name: apiCourse.course_name
+      name: apiCourse.course_name && apiCourse.course_name !== apiCourse.club_name
         ? `${apiCourse.club_name} — ${apiCourse.course_name}`
         : apiCourse.club_name,
-      city: apiCourse.city ?? null,
-      state: apiCourse.state_name ?? null,
-      country: apiCourse.country ?? null,
-      latitude: apiCourse.latitude,
-      longitude: apiCourse.longitude,
-      par: apiCourse.par ?? 72,
-      num_holes: apiCourse.num_holes ?? 18,
+      city: apiCourse.location.city ?? null,
+      state: apiCourse.location.state ?? null,
+      country: apiCourse.location.country ?? null,
+      latitude: apiCourse.location.latitude,
+      longitude: apiCourse.location.longitude,
+      par: extractHoles(apiCourse).length > 0
+        ? extractHoles(apiCourse).reduce((s, h) => s + h.par, 0)
+        : 72,
+      num_holes: extractHoles(apiCourse).length || 18,
       last_synced_at: new Date().toISOString(),
     };
 
@@ -67,7 +69,34 @@ export async function GET(
       return NextResponse.json({ error: "DB error" }, { status: 500 });
     }
 
-    return NextResponse.json({ course: upserted, holes: [] });
+    // 3. Extract and upsert holes
+    const apiHoles = extractHoles(apiCourse);
+    const holeRows = apiHoles.map((h) => ({
+      course_id: upserted.id,
+      hole_number: h.hole_number,
+      par: h.par,
+      distance_yards: h.distance_yards,
+      handicap_index: h.handicap_index,
+      tee_latitude: apiCourse.location.latitude,
+      tee_longitude: apiCourse.location.longitude,
+      green_latitude: apiCourse.location.latitude,
+      green_longitude: apiCourse.location.longitude,
+    }));
+
+    let savedHoles: typeof holeRows = [];
+    if (holeRows.length > 0) {
+      const { data: holesData, error: holesError } = await supabase
+        .from("holes")
+        .upsert(holeRows, { onConflict: "course_id,hole_number", ignoreDuplicates: false })
+        .select();
+
+      if (holesError) {
+        console.error("[courses/[courseId]] holes upsert error", holesError);
+      }
+      savedHoles = holesData ?? [];
+    }
+
+    return NextResponse.json({ course: upserted, holes: savedHoles });
   } catch (err) {
     console.error("[courses/[courseId]]", err);
     return NextResponse.json({ error: "Upstream error" }, { status: 502 });
