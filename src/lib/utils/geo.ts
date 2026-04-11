@@ -23,6 +23,43 @@ export function getBoundingBox(
   ];
 }
 
+export function pixelToGeo(
+  px_x: number,
+  px_y: number,
+  center_lat: number,
+  center_lng: number,
+  zoom: number,
+  img_width: number,
+  img_height: number
+): { lat: number; lng: number } {
+  const metersPerPixel =
+    (156543.03392 * Math.cos((center_lat * Math.PI) / 180)) /
+    Math.pow(2, zoom);
+  const lng =
+    center_lng +
+    ((px_x - img_width / 2) * metersPerPixel) /
+      (111320 * Math.cos((center_lat * Math.PI) / 180));
+  const lat =
+    center_lat - ((px_y - img_height / 2) * metersPerPixel) / 110574;
+  return { lat, lng };
+}
+
+export function getBearing(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const toDeg = (rad: number) => (rad * 180) / Math.PI;
+  const dLng = toRad(lng2 - lng1);
+  const y = Math.sin(dLng) * Math.cos(toRad(lat2));
+  const x =
+    Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+    Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
 const EARTH_RADIUS_YARDS = 6_371_000 * 1.09361;
 
 /**
