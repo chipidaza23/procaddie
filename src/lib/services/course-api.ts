@@ -54,6 +54,32 @@ interface SingleCourseResponse {
   course: GolfCourseAPIResult;
 }
 
+// ---------- Name helper ----------
+
+/**
+ * Builds the best display name from the API's club_name and course_name fields.
+ * club_name is sometimes truncated by the API, so we prefer whichever is longer.
+ * We only combine both with " — " when neither is a prefix/substring of the other,
+ * meaning they represent genuinely different pieces of information.
+ */
+export function buildCourseName(clubName: string, courseName?: string): string {
+  if (!courseName) return clubName;
+
+  const club = clubName.trim();
+  const course = courseName.trim();
+
+  if (!course || club === course) return club;
+
+  const clubLower = club.toLowerCase();
+  const courseLower = course.toLowerCase();
+
+  if (courseLower.startsWith(clubLower) || clubLower.startsWith(courseLower)) {
+    return club.length >= course.length ? club : course;
+  }
+
+  return `${club.length >= course.length ? club : course} — ${club.length >= course.length ? course : club}`;
+}
+
 // ---------- Search ----------
 
 export async function searchCourses(query: string): Promise<CourseSearchResult[]> {
@@ -68,9 +94,7 @@ export async function searchCourses(query: string): Promise<CourseSearchResult[]
 
   return (data.courses ?? []).map((c) => ({
     external_id: String(c.id),
-    name: c.course_name && c.course_name !== c.club_name
-      ? `${c.club_name} — ${c.course_name}`
-      : c.club_name,
+    name: buildCourseName(c.club_name, c.course_name),
     city: c.location.city ?? "",
     state: c.location.state ?? "",
     country: c.location.country ?? "",
