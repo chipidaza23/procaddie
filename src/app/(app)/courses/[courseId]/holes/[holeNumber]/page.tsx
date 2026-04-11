@@ -39,7 +39,7 @@ export default async function HolePage({ params }: HolePageProps) {
   // Look up course by external_id first
   const { data: course } = await supabase
     .from("courses")
-    .select("id, num_holes")
+    .select("id, num_holes, latitude, longitude")
     .eq("external_id", courseId)
     .maybeSingle();
 
@@ -100,16 +100,20 @@ export default async function HolePage({ params }: HolePageProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left: aerial + annotations */}
         <div className="lg:col-span-2 space-y-3">
-          <AerialView hole={typedHole} />
+          <AerialView
+            hole={typedHole}
+            courseLat={course.latitude ?? undefined}
+            courseLng={course.longitude ?? undefined}
+          />
           {typedHole.feature_segments && typedHole.feature_segments.length > 0 && (
             <AnnotationOverlay
               width={640}
               height={360}
               segments={typedHole.feature_segments}
-              teeLat={typedHole.tee_latitude}
-              teeLng={typedHole.tee_longitude}
-              greenLat={typedHole.green_latitude}
-              greenLng={typedHole.green_longitude}
+              teeLat={typedHole.tee_latitude ?? undefined}
+              teeLng={typedHole.tee_longitude ?? undefined}
+              greenLat={typedHole.green_latitude ?? undefined}
+              greenLng={typedHole.green_longitude ?? undefined}
             />
           )}
         </div>

@@ -49,8 +49,8 @@ export function buildStrategyPrompt(
 ${teeBoxDistances}
 
 ### Hole Coordinates
-- Tee: lat ${hole.tee_latitude.toFixed(6)}, lng ${hole.tee_longitude.toFixed(6)}
-- Green center: lat ${hole.green_latitude.toFixed(6)}, lng ${hole.green_longitude.toFixed(6)}
+- Tee: ${hole.tee_latitude != null && hole.tee_longitude != null ? `lat ${hole.tee_latitude.toFixed(6)}, lng ${hole.tee_longitude.toFixed(6)}` : "not mapped"}
+- Green center: ${hole.green_latitude != null && hole.green_longitude != null ? `lat ${hole.green_latitude.toFixed(6)}, lng ${hole.green_longitude.toFixed(6)}` : "not mapped"}
 ${hole.handicap_index != null ? `- Handicap index: ${hole.handicap_index}` : ""}
 
 ### Detected Course Features (${segments.length} total)
