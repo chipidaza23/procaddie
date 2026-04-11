@@ -41,7 +41,7 @@ export function DemoPreview() {
                 <rect x="88" y="162" width="24" height="10" rx="3" fill="#166534" stroke="#4ade80" strokeWidth="1" />
               </svg>
             </div>
-            <div className="absolute right-3 top-3 flex flex-col gap-1.5">
+            <div className="absolute right-3 top-3">
               <div className="rounded bg-slate-900/80 px-2 py-1 text-center text-xs text-white">
                 <p className="font-bold text-emerald-400">178</p>
                 <p className="text-slate-400">to pin</p>
@@ -51,7 +51,7 @@ export function DemoPreview() {
           <div className="border-t border-slate-800 p-5">
             <div className="mb-3 flex items-center gap-2">
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600">
-                <span className="text-xs text-white font-bold">AI</span>
+                <span className="text-xs font-bold text-white">AI</span>
               </div>
               <span className="text-xs font-semibold uppercase tracking-wide text-emerald-400">AI Caddie</span>
             </div>

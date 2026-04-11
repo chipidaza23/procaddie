@@ -24,15 +24,12 @@ export default async function ProfilePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your playing style and preferences help ProCaddie personalise strategy.
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">Your playing style and preferences help ProCaddie personalise strategy.</p>
         </div>
         <Link href="/profile/clubs" className={buttonVariants({ variant: "outline" })}>
           Manage clubs
         </Link>
       </div>
-
       <ProfileForm profile={profile as PlayerProfile | null} userId={user.id} />
     </div>
   );

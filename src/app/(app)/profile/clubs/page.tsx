@@ -14,7 +14,6 @@ export default async function ClubsPage() {
 
   if (!user) redirect("/login");
 
-  // Get or create profile
   let { data: profile } = await supabase
     .from("player_profiles")
     .select("id")
@@ -43,9 +42,7 @@ export default async function ClubsPage() {
     return (
       <div className="p-6 text-sm text-muted-foreground">
         Could not load profile. Please visit the{" "}
-        <Link href="/profile" className="underline">
-          profile page
-        </Link>{" "}
+        <Link href="/profile" className="underline">profile page</Link>{" "}
         first.
       </div>
     );
@@ -65,18 +62,11 @@ export default async function ClubsPage() {
           Back to profile
         </Link>
       </div>
-
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Club Distances</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Enter your carry and total distances for accurate club recommendations.
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">Enter your carry and total distances for accurate club recommendations.</p>
       </div>
-
-      <ClubDistanceTable
-        profileId={profile.id}
-        initialClubs={(clubs as ClubDistance[]) ?? []}
-      />
+      <ClubDistanceTable profileId={profile.id} initialClubs={(clubs as ClubDistance[]) ?? []} />
     </div>
   );
 }

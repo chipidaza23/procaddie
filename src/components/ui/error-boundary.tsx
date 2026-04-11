@@ -34,7 +34,6 @@ export class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) {
         return this.props.fallback;
       }
-
       return (
         <div className="flex flex-col items-center justify-center rounded-xl border border-red-900/50 bg-red-950/20 p-8 text-center">
           <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
@@ -45,10 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {this.state.error?.message ?? "An unexpected error occurred."}
           </p>
           <button
-            className={cn(
-              buttonVariants({ size: "sm", variant: "outline" }),
-              "border-slate-700 text-slate-300 hover:bg-slate-800"
-            )}
+            className={cn(buttonVariants({ size: "sm", variant: "outline" }), "border-slate-700 text-slate-300 hover:bg-slate-800")}
             onClick={() => this.setState({ hasError: false, error: undefined })}
           >
             Retry
@@ -56,7 +52,6 @@ export class ErrorBoundary extends Component<Props, State> {
         </div>
       );
     }
-
     return this.props.children;
   }
 }

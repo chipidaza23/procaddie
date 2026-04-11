@@ -23,26 +23,17 @@ export default function GlobalError({ error, reset }: ErrorProps) {
       </div>
       <h1 className="mb-2 text-2xl font-bold text-white">Something went wrong</h1>
       <p className="mb-8 max-w-md text-slate-400">
-        An unexpected error occurred. Your round data is safe — please try again
-        or refresh the page.
+        An unexpected error occurred. Your round data is safe — please try again or refresh the page.
       </p>
       {error.digest && (
-        <p className="mb-6 font-mono text-xs text-slate-600">
-          Error ID: {error.digest}
-        </p>
+        <p className="mb-6 font-mono text-xs text-slate-600">Error ID: {error.digest}</p>
       )}
       <div className="flex gap-3">
-        <Button
-          onClick={reset}
-          className="bg-emerald-600 text-white hover:bg-emerald-500"
-        >
+        <Button onClick={reset} className="bg-emerald-600 text-white hover:bg-emerald-500">
           Try Again
         </Button>
         <button
-          className={cn(
-            buttonVariants({ variant: "outline" }),
-            "border-slate-700 text-slate-300 hover:bg-slate-800"
-          )}
+          className={cn(buttonVariants({ variant: "outline" }), "border-slate-700 text-slate-300 hover:bg-slate-800")}
           onClick={() => (window.location.href = "/dashboard")}
         >
           Go to Dashboard

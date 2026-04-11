@@ -45,9 +45,7 @@ export default function OfflinePage() {
             <Wifi className="h-5 w-5 text-green-600" />
             <div>
               <p className="font-medium text-green-800 dark:text-green-200">Online</p>
-              <p className="text-sm text-green-700 dark:text-green-300">
-                Download courses to access them offline on the course.
-              </p>
+              <p className="text-sm text-green-700 dark:text-green-300">Download courses to access them offline on the course.</p>
             </div>
           </>
         ) : (
@@ -55,9 +53,7 @@ export default function OfflinePage() {
             <WifiOff className="h-5 w-5 text-red-600" />
             <div>
               <p className="font-medium text-red-800 dark:text-red-200">Offline</p>
-              <p className="text-sm text-red-700 dark:text-red-300">
-                You&apos;re offline. Showing cached courses below.
-              </p>
+              <p className="text-sm text-red-700 dark:text-red-300">You&apos;re offline. Showing cached courses below.</p>
             </div>
           </>
         )}
@@ -69,9 +65,7 @@ export default function OfflinePage() {
         ) : cachedCourses.length === 0 ? (
           <div className="rounded-lg border border-dashed p-8 text-center">
             <Download className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
-              No courses downloaded yet. Go to a yardage book while online and cache it for offline use.
-            </p>
+            <p className="text-sm text-muted-foreground">No courses downloaded yet. Go to a yardage book while online and cache it for offline use.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -93,10 +87,7 @@ export default function OfflinePage() {
                     <span className="mx-1">·</span>
                     Par {course.par} · {course.num_holes} holes
                   </div>
-                  <Link
-                    href={`/yardage-book/${course.id}`}
-                    className={cn(buttonVariants({ size: "sm", variant: "outline" }), "gap-1 w-full")}
-                  >
+                  <Link href={`/yardage-book/${course.id}`} className={cn(buttonVariants({ size: "sm", variant: "outline" }), "gap-1 w-full")}>
                     <BookOpen className="h-3 w-3" />
                     Open Yardage Book
                   </Link>
