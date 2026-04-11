@@ -10,9 +10,11 @@ interface HoleAerialMapProps {
   courseLat?: number;
   courseLng?: number;
   className?: string;
+  /** Called once the Mapbox Map instance is ready. Use to attach overlays. */
+  onMapReady?: (map: unknown) => void;
 }
 
-export function HoleAerialMap({ tee, green, courseLat, courseLng, className }: HoleAerialMapProps) {
+export function HoleAerialMap({ tee, green, courseLat, courseLng, className, onMapReady }: HoleAerialMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<unknown>(null);
   const mapboxModule = useMapbox();
@@ -54,6 +56,14 @@ export function HoleAerialMap({ tee, green, courseLat, courseLng, className }: H
 
     mapRef.current = map;
 
+    // Notify parent once the map tiles are loaded and the map is ready to project
+    if (onMapReady) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (map as any).once("load", () => {
+        onMapReady(map);
+      });
+    }
+
     return () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (map as any).remove?.();
@@ -68,6 +78,7 @@ export function HoleAerialMap({ tee, green, courseLat, courseLng, className }: H
       className={
         className ?? "h-[400px] w-full rounded-xl overflow-hidden bg-muted"
       }
+      style={{ position: "relative" }}
     />
   );
 }
