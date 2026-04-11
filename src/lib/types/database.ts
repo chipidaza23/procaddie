@@ -84,10 +84,10 @@ export interface Hole {
   par: number;
   distance_yards: Record<string, number>; // e.g. { "blue": 410, "white": 385 }
   handicap_index: number | null;
-  tee_latitude: number;
-  tee_longitude: number;
-  green_latitude: number;
-  green_longitude: number;
+  tee_latitude: number | null;
+  tee_longitude: number | null;
+  green_latitude: number | null;
+  green_longitude: number | null;
   aerial_image_url: string | null;
   feature_segments: FeatureSegment[] | null;
   created_at: string;

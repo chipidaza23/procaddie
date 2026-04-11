@@ -58,7 +58,14 @@ export async function processHole(
     // Use stored aerial image or generate Mapbox URL from coordinates
     const imageUrl =
       hole.aerial_image_url ??
-      buildMapboxAerialUrl(hole.tee_latitude, hole.tee_longitude);
+      (hole.tee_latitude != null && hole.tee_longitude != null
+        ? buildMapboxAerialUrl(hole.tee_latitude, hole.tee_longitude)
+        : null);
+
+    if (!imageUrl) {
+      onProgress?.(hole.hole_number, totalHoles, "error", "No aerial image and coordinates are not set");
+      return { hole_number: hole.hole_number, strategy: null, tokens_used: 0, error: "Segmentation: missing coordinates and aerial image" };
+    }
 
     segments = await segmentHoleImage(imageUrl);
 
