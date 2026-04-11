@@ -52,7 +52,7 @@ export function ClubDistanceTable({
     setEditing({
       id: "new",
       club_name: "",
-      club_type: "iron",
+      club_type: "driver",
       carry_distance_yards: 150,
       total_distance_yards: 155,
       sort_order: maxSort + 1,
@@ -69,6 +69,14 @@ export function ClubDistanceTable({
 
   function saveEdit() {
     if (!editing) return;
+    if (editing.carry_distance_yards <= 0 || editing.total_distance_yards <= 0) {
+      toast.error("Distances must be positive numbers");
+      return;
+    }
+    if (editing.carry_distance_yards > editing.total_distance_yards) {
+      toast.error("Carry distance cannot exceed total distance");
+      return;
+    }
     startTransition(async () => {
       const supabase = createClient();
 
@@ -135,9 +143,25 @@ export function ClubDistanceTable({
     });
   }
 
-  function loadDefaults() {
+  function loadDefaults(reset = false) {
+    if (reset && !window.confirm("This will replace your current clubs with defaults. Continue?")) {
+      return;
+    }
     startTransition(async () => {
       const supabase = createClient();
+
+      if (reset && clubs.length > 0) {
+        const { error: deleteError } = await supabase
+          .from("club_distances")
+          .delete()
+          .eq("profile_id", profileId);
+
+        if (deleteError) {
+          toast.error("Failed to clear clubs: " + deleteError.message);
+          return;
+        }
+      }
+
       const rows = DEFAULT_CLUBS.map((c) => ({
         profile_id: profileId,
         club_name: c.name,
@@ -157,22 +181,25 @@ export function ClubDistanceTable({
         return;
       }
       setClubs(data as ClubDistance[]);
-      toast.success("Default clubs loaded");
+      toast.success(reset ? "Clubs reset to defaults" : "Default clubs loaded");
     });
   }
 
-  const sorted = [...clubs].sort((a, b) => a.sort_order - b.sort_order);
+  const sorted = [...clubs].sort((a, b) => b.total_distance_yards - a.total_distance_yards);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Club Distances</h2>
         <div className="flex gap-2">
-          {clubs.length === 0 && (
-            <Button variant="outline" size="sm" onClick={loadDefaults} disabled={isPending}>
-              Load defaults
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => loadDefaults(clubs.length > 0)}
+            disabled={isPending}
+          >
+            {clubs.length > 0 ? "Reset to defaults" : "Load defaults"}
+          </Button>
           <Button size="sm" onClick={startAdd} disabled={!!editing || isPending}>
             <Plus className="mr-1 size-4" />
             Add club
