@@ -20,7 +20,12 @@ export async function getCourseWithHoles(
       .select("*")
       .eq("course_id", cached.id)
       .order("hole_number");
-    return { course: cached, holes: holes ?? [] };
+
+    // If holes are already stored, return them. Otherwise fall through to re-sync
+    // (handles courses that were cached before holes were populated).
+    if (holes && holes.length > 0) {
+      return { course: cached, holes };
+    }
   }
 
   // 2. Fetch from GolfCourseAPI
