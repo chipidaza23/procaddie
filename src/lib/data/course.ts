@@ -2,6 +2,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchCourseById, extractHoles, buildCourseName } from "@/lib/services/course-api";
 import type { Course, Hole } from "@/lib/types";
 
+/** Only attempt a hole re-sync once per hour to avoid hammering the upstream API. */
+const RESYNC_INTERVAL_MS = 60 * 60 * 1000;
+
 export async function getCourseWithHoles(
   courseId: string
 ): Promise<{ course: Course; holes: Hole[] } | null> {
@@ -21,16 +24,25 @@ export async function getCourseWithHoles(
       .eq("course_id", cached.id)
       .order("hole_number");
 
-    // If holes are already stored, return them. Otherwise fall through to re-sync
-    // (handles courses that were cached before holes were populated).
     if (holes && holes.length > 0) {
-      return { course: cached, holes };
+      return { course: cached as Course, holes: holes as Hole[] };
+    }
+
+    // Holes are missing. Only attempt a re-sync if enough time has passed since
+    // the last sync to avoid hitting the upstream API on every page view.
+    const syncedAt = cached.last_synced_at ? new Date(cached.last_synced_at).getTime() : 0;
+    if (Date.now() - syncedAt < RESYNC_INTERVAL_MS) {
+      return { course: cached as Course, holes: [] };
     }
   }
 
   // 2. Fetch from GolfCourseAPI
   const apiCourse = await fetchCourseById(courseId);
-  if (!apiCourse) return null;
+
+  // If upstream doesn't know this course but we have it cached, return what we have.
+  if (!apiCourse) {
+    return cached ? { course: cached as Course, holes: [] } : null;
+  }
 
   const apiHoles = extractHoles(apiCourse);
   const courseRow = {
