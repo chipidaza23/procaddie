@@ -39,9 +39,17 @@ export async function getCourseWithHoles(
   // 2. Fetch from GolfCourseAPI
   const apiCourse = await fetchCourseById(courseId);
 
-  // If upstream doesn't know this course but we have it cached, return what we have.
+  // If upstream doesn't know this course but we have it cached, bump last_synced_at
+  // so the throttle cooldown resets and we don't re-hit the API next page view.
   if (!apiCourse) {
-    return cached ? { course: cached as Course, holes: [] } : null;
+    if (cached) {
+      await supabase
+        .from("courses")
+        .update({ last_synced_at: new Date().toISOString() })
+        .eq("id", cached.id);
+      return { course: cached as Course, holes: [] };
+    }
+    return null;
   }
 
   const apiHoles = extractHoles(apiCourse);
